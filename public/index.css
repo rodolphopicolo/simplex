@@ -1,0 +1,13 @@
+#simplex-container table {
+    border: 1px solid black;
+    margin:32px;
+    border-collapse: collapse;
+}
+
+#simplex-container table td {
+    padding:16px;
+}
+
+#simplex-container div h1 {
+    font-size:16px;
+}
