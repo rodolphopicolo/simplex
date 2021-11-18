@@ -74,7 +74,7 @@ Simplex.Step = function(simplex){
         } else if(previousStep.goal == GOAL_ITERATION_OF_PHASE_ONE_OF_TWO_PHASES_METHOD && previousStep.finished == true){
             this.goal = GOAL_TABLE_PREPARATION_FOR_PHASE_TWO_OF_TWO_PHASES_METHOD;
             this.preparePhaseTwoOfTwoPhasesMethod();
-            return;
+            // return;
         } else if(previousStep.goal == GOAL_TABLE_PREPARATION_FOR_PHASE_TWO_OF_TWO_PHASES_METHOD){
             this.goal = GOAL_ITERATION_OF_PHASE_TWO_OF_TWO_PHASES_METHOD;
             this.simplexIteraction();
@@ -124,7 +124,7 @@ Simplex.Step.prototype.evaluateStoppingCriteria = function(){
     }
     for(let i = 1; i < this.matrix[Z_ROW].length - 2; i++){
         if(this.matrix[Z_ROW][i] < 0){
-            this.stoppingCriteria = {stop: false, reason: 'c' + i + '=' + this.matrix[Z_ROW][i] + ' is negative'};
+            this.stoppingCriteria = {stop: false, reason: 'z' + i + '=' + this.matrix[Z_ROW][i] + ' is negative'};
             this.finished = false;
             return;
         }
@@ -209,7 +209,7 @@ Simplex.Step.prototype.matrixFromProblem = function(problem){
                 }
             } else {
                 if(column == BASE_VARIABLES_COLUMN){
-                    // do nothing.
+                    matrix[row][column] = '';
                 } else if(column > 0 && column < matrix[row].length - 2){
                     matrix[row][column] = problem.a[row - 3][column - 1];
                 } else if(column == matrix[row].length - 2){
@@ -227,7 +227,7 @@ Simplex.Step.prototype.matrixFromProblem = function(problem){
 Simplex.Step.prototype.defineBase = function(matrix){
     let restrictionsQuantity = matrix.length - FIRST_RESTRICTION_ROW;
 
-    for(let column = matrix[VARIABLES_ROW].length - 3; column > matrix[VARIABLES_ROW].length - 378 - restrictionsQuantity; column--){
+    for(let column = matrix[VARIABLES_ROW].length - 3; column > matrix[VARIABLES_ROW].length - 3 - restrictionsQuantity; column--){
         let ones = 0;
         let zeros = 0;
         let oneRow = -1;
@@ -256,7 +256,6 @@ Simplex.prototype.convertProblemToStandardForm = function(step){
         b: problem.b.map(x => x)
     };
 
-
     this.totalSlackVariables = this.addExtraVariableToStandardFormProblem('>=', SLACK_VARIABLE_INITIAL_RESTRICTION_COEFFICIENT_VALUE)
     this.totalSurplusVariables = this.addExtraVariableToStandardFormProblem('<=', SURPLUS_VARIABLE_INITIAL_RESTRICTION_COEFFICIENT_VALUE)
     this.totalArtificialVariables = this.addExtraVariableToStandardFormProblem('>=', ARTIFICIAL_VARIABLE_INITIAL_RESTRICTION_COEFFICIENT_VALUE)
@@ -266,7 +265,15 @@ Simplex.prototype.convertProblemToStandardForm = function(step){
         this.standardFormProblem.o[i] = '=';
     }
 
+
+    if(this.totalSlackVariables > 0){
+        step.steps.push(this.totalSlackVariables + ' slack variables added');
+    }
+    if(this.totalSurplusVariables > 0){
+        step.steps.push(this.totalSurplusVariables + ' surplus variables added');
+    }
     if(this.totalArtificialVariables > 0){
+        step.steps.push(this.totalArtificialVariables + ' artificial variables added, two phases method required');
         this.twoPhasesMethod = true;
     }
 }
