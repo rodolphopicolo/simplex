@@ -265,12 +265,11 @@ Simplex.prototype.convertProblemToStandardForm = function(step){
         this.standardFormProblem.o[i] = '=';
     }
 
-
     if(this.totalSlackVariables > 0){
-        step.steps.push(this.totalSlackVariables + ' slack variables added');
+        step.steps.push(this.totalSlackVariables + ' slack variables added (excesso)');
     }
     if(this.totalSurplusVariables > 0){
-        step.steps.push(this.totalSurplusVariables + ' surplus variables added');
+        step.steps.push(this.totalSurplusVariables + ' surplus variables added (folga)');
     }
     if(this.totalArtificialVariables > 0){
         step.steps.push(this.totalArtificialVariables + ' artificial variables added, two phases method required');
@@ -343,7 +342,7 @@ Simplex.Step.prototype.toHTML = function (){
 Simplex.prototype.pivotColumn = function(){
     let previousStep = this.steps[this.steps.length - 2];
     let previousMatrix = previousStep.matrix;
-    let smallestValue = 1;
+    let smallestValue = 1e-10;
     let smallestValueIndex = -1;
     for(let i = FIRST_COEFFICIENT_COLUMN; i < previousStep.matrix[VARIABLES_ROW].length - 2; i++){
         let alreadyPartOfBase = false;
@@ -449,10 +448,10 @@ Simplex.Step.prototype.twoPhasesIteraction = function(){
 }
 
 Simplex.Step.prototype.calculateZRowForTwoPhaseMatrix = function(){
-    const COEFFICIENT_COLUMN = this.matrix[VARIABLES_ROW].length - 2;
+    const OPERATOR_COLUMN = this.matrix[VARIABLES_ROW].length - 2;
 
     for(let column = FIRST_COEFFICIENT_COLUMN; column < this.matrix[VARIABLES_ROW].length; column++){
-        if(column == COEFFICIENT_COLUMN){
+        if(column == OPERATOR_COLUMN){
             continue;
         }
         let zj = 0;
@@ -462,6 +461,7 @@ Simplex.Step.prototype.calculateZRowForTwoPhaseMatrix = function(){
                 if(this.matrix[VARIABLES_ROW][column_2] == baseVariable){
                     let cbi = this.matrix[COST_ROW][column_2];
                     zj += cbi * this.matrix[row][column];
+                    break;
                 }
             }
         }
